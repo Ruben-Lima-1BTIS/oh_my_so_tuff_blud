@@ -76,7 +76,7 @@
                             <i class="fas fa-user text-gray-500"></i>
                         </div>
                         <div>
-                            <p class="font-medium text-gray-800">Alex Johnson</p>
+                            <p class="font-medium text-gray-800">Ruben Lima</p>
                             <p class="text-sm text-gray-500">Intern</p>
                         </div>
                     </div>
@@ -127,7 +127,7 @@
                                 <tr>
                                     <td class="px-4 py-3 text-sm text-gray-800">2025-06-10</td>
                                     <td class="px-4 py-3 text-sm text-gray-800">8.0</td>
-                                    <td class="px-4 py-3 text-sm text-gray-800">Built login page</td>
+                                    <td class="px-4 py-3 text-sm text-gray-800">Fiz Drop da base de dados da empresa</td>
                                     <td class="px-4 py-3">
                                         <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pending</span>
                                     </td>
@@ -135,7 +135,7 @@
                                 <tr>
                                     <td class="px-4 py-3 text-sm text-gray-800">2025-06-07</td>
                                     <td class="px-4 py-3 text-sm text-gray-800">7.5</td>
-                                    <td class="px-4 py-3 text-sm text-gray-800">Fixed bug in dashboard</td>
+                                    <td class="px-4 py-3 text-sm text-gray-800">Curso de SQL</td>
                                     <td class="px-4 py-3">
                                         <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Approved</span>
                                     </td>
@@ -149,13 +149,53 @@
         </main>
     </div>
 
+    <!-- Hours Registered Modal -->
+    <div id="hoursRegisteredModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full mx-4" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="flex items-start">
+                <div class="flex-1">
+                    <h3 id="modalTitle" class="text-lg font-semibold text-gray-900">Hours registered</h3>
+                    <p class="mt-2 text-sm text-gray-600">Your hours have been successfully registered.</p>
+                </div>
+                <button id="closeModalBtn" class="ml-4 text-gray-400 hover:text-gray-600 text-2xl leading-none" aria-label="Close modal">&times;</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        document.getElementById('logHoursForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // In real app: send via AJAX to PHP backend
-            alert('Hours logged successfully! (This is a demo)');
-            this.reset();
-        });
+        (function() {
+            var form = document.getElementById('logHoursForm');
+            var modal = document.getElementById('hoursRegisteredModal');
+            var closeBtn = document.getElementById('closeModalBtn');
+
+            function showModal() {
+                modal.classList.remove('hidden');
+                // set focus to modal for accessibility
+                modal.querySelector('[role="dialog"]').focus && modal.querySelector('[role="dialog"]').focus();
+            }
+
+            function hideModal() {
+                modal.classList.add('hidden');
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // In a real app: send via AJAX to PHP backend here
+                showModal();
+                // reset form inputs
+                form.reset();
+                // auto-hide after 2 seconds
+                setTimeout(hideModal, 2000);
+            });
+
+            // Close when clicking the close button
+            closeBtn.addEventListener('click', hideModal);
+
+            // Close when clicking outside the modal content
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) hideModal();
+            });
+        })();
     </script>
 </body>
 </html>

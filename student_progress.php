@@ -33,7 +33,7 @@
             </div>
             <nav class="p-4 flex flex-col min-h-[calc(100vh-5rem)]">
                 <div class="space-y-2 flex-1">
-                    <a href="coordinator-dashboard.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="dashboard_coordinator.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-home"></i>
                         <span class="font-medium">Dashboard</span>
                     </a>
@@ -77,7 +77,7 @@
                             <i class="fas fa-user text-gray-500"></i>
                         </div>
                         <div>
-                            <p class="font-medium text-gray-800">Dr. Lee</p>
+                            <p class="font-medium text-gray-800">Dr. Marco</p>
                             <p class="text-sm text-gray-500">Coordinator</p>
                         </div>
                     </div>

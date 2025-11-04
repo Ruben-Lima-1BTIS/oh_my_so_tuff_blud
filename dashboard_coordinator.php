@@ -41,7 +41,7 @@
                         <i class="fas fa-file-alt"></i>
                         <span class="font-medium">Review Reports</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="student_progress.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-file-alt"></i>
                         <span class="font-medium">Student Progress</span>
                     </a>

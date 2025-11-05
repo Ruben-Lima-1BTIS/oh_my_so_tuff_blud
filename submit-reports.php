@@ -36,7 +36,7 @@
                         <i class="fas fa-home"></i>
                         <span class="font-medium">Dashboard</span>
                     </a>
-                    <a href="log-hours.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="log_hours.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-clock"></i>
                         <span class="font-medium">Log Hours</span>
                     </a>

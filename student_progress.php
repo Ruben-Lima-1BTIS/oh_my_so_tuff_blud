@@ -26,7 +26,6 @@
 </head>
 <body class="bg-gray-50">
     <div class="flex min-h-screen">
-        <!-- Sidebar -->
         <aside class="w-64 bg-blue-700 text-white flex flex-col">
             <div class="p-6 border-b border-blue-600">
                 <h1 class="text-2xl font-bold">InternHub</h1>
@@ -62,10 +61,7 @@
                 </div>
             </nav>
         </aside>
-
-        <!-- Main Content -->
         <main class="flex-1 flex flex-col overflow-hidden">
-            <!-- Top Bar -->
             <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <div>
@@ -83,13 +79,10 @@
                     </div>
                 </div>
             </header>
-
-            <!-- Student Progress Accordion -->
             <div class="flex-1 overflow-y-auto p-6">
                 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
                     <h3 class="text-xl font-semibold text-gray-800 mb-4">All Students — CS Internship 2025</h3>
                     <div id="studentsList" class="space-y-3">
-                        <!-- Student 1 -->
                         <div class="border border-gray-200 rounded-lg overflow-hidden">
                             <div class="flex justify-between items-center p-4 bg-gray-50 cursor-pointer hover:bg-gray-100" onclick="toggleStudent('student-1')">
                                 <div class="flex items-center space-x-4">
@@ -130,8 +123,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Student 2 -->
                         <div class="border border-gray-200 rounded-lg overflow-hidden">
                             <div class="flex justify-between items-center p-4 bg-gray-50 cursor-pointer hover:bg-gray-100" onclick="toggleStudent('student-2')">
                                 <div class="flex items-center space-x-4">

@@ -25,7 +25,6 @@
 </head>
 <body class="bg-gray-50">
     <div class="flex min-h-screen">
-        <!-- Sidebar -->
         <aside class="w-64 bg-blue-700 text-white flex flex-col">
             <div class="p-6 border-b border-blue-600">
                 <h1 class="text-2xl font-bold">InternHub</h1>
@@ -61,10 +60,7 @@
                 </div>
             </nav>
         </aside>
-
-        <!-- Main Content -->
         <main class="flex-1 flex flex-col overflow-hidden">
-            <!-- Top Bar -->
             <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <div>
@@ -82,12 +78,9 @@
                     </div>
                 </div>
             </header>
-
-            <!-- Messages List -->
             <div class="flex-1 overflow-y-auto p-6">
                 <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
                     <ul class="divide-y divide-gray-200">
-                        <!-- Conversation 1 -->
                         <li class="p-4 hover:bg-gray-50 cursor-pointer">
                             <div class="flex items-start">
                                 <div class="bg-blue-100 text-blue-800 w-10 h-10 rounded-full flex items-center justify-center font-bold mr-3">S</div>
@@ -101,7 +94,6 @@
                                 </div>
                             </div>
                         </li>
-                        <!-- Conversation 2 -->
                         <li class="p-4 hover:bg-gray-50 cursor-pointer bg-white">
                             <div class="flex items-start bg-white">
                                 <div class="bg-green-100 text-green-800 w-10 h-10 rounded-full flex items-center justify-center font-bold mr-3">C</div>
@@ -117,14 +109,6 @@
                         </li>
                     </ul>
                 </div>
-
-                <!-- Empty state (optional) -->
-                <!--
-                <div class="text-center py-12 text-gray-500">
-                    <i class="fas fa-inbox text-4xl mb-3"></i>
-                    <p>No messages yet</p>
-                </div>
-                -->
             </div>
         </main>
     </div>

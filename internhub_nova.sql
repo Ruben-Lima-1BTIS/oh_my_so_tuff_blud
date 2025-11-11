@@ -248,6 +248,8 @@ VALUES
 ('Empresa6','Lisboa','empresa6@gmail.com','+351910000006'),
 ('Empresa7','Lisboa','empresa7@gmail.com','+351910000007'),
 ('Empresa8','Lisboa','empresa8@gmail.com','+351910000008');
+('Empresa9','Lisboa','empresa9@gmail.com','+351910000009');
+
 
 INSERT IGNORE INTO coordinators (name, email, password_hash)
 VALUES

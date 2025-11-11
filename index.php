@@ -24,7 +24,6 @@
     </script>
 </head>
 <body class="bg-gray-50 font-sans">
-    <!-- Navigation -->
     <nav class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
@@ -35,111 +34,77 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="auth.php" class="text-gray-700 hover:text-blue-600 font-medium">Login</a>
-                    <a href="auth.php?form=register" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">Register</a>
+                    <a href="auth.php" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                        Login
+                    </a>
                 </div>
             </div>
         </div>
     </nav>
-
-    <!-- Hero Section -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-        <div class="text-center">
-            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
-                InternHub — Track Your Internship the Smart Way
-            </h1>
-            <p class="mt-6 max-w-2xl mx-auto text-xl text-gray-600">
-                InternHub makes internships simple. Log your hours, submit reports, and track progress — all in one clean, easy-to-use platform built for students, supervisors, and coordinators.
-            </p>
-            <div class="mt-10 flex justify-center gap-4">
-                <a href="auth.php" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium text-lg transition shadow-md">
-                    Get Started
-                </a>
-                <a href="#features" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 px-6 py-3 rounded-lg font-medium text-lg transition">
-                    See How It Works
-                </a>
-            </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 text-center">
+        <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+            InternHub — Track Your Internship the Smart Way
+        </h1>
+        <p class="mt-6 max-w-2xl mx-auto text-xl text-gray-600">
+            InternHub simplifies internships. Log hours, submit reports, and track progress — all in one platform for students, supervisors, and coordinators.
+        </p>
+        <div class="mt-10">
+            <a href="auth.php" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium text-lg transition shadow-md">
+                Login
+            </a>
         </div>
     </div>
-
-    <!-- Features Section -->
-    <div id="features" class="bg-white py-16">
+    <div class="bg-white py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-900">Made for Real Internships</h2>
-                <p class="mt-4 text-lg text-gray-600">Everything you need to make internship tracking smooth, transparent, and stress-free.</p>
+                <h2 class="text-3xl font-bold text-gray-900">Features for Every Role</h2>
+                <p class="mt-4 text-lg text-gray-600">Everything you need to track and manage internships efficiently.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Feature 1: Student -->
                 <div class="border border-gray-200 rounded-xl p-6 hover:shadow-md transition">
                     <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-4">
                         <i class="fas fa-user-graduate text-blue-600 text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900">For Students</h3>
+                    <h3 class="text-xl font-semibold text-gray-900">Students</h3>
                     <ul class="mt-3 space-y-2 text-gray-600">
-                        <li>✅ Log your internship hours with ease</li>
-                        <li>✅ Submit weekly reports in seconds</li>
-                        <li>✅ Keep track of your progress anytime</li>
-                        <li>✅ Chat directly with your supervisor</li>
+                        <li>Log internship hours easily</li>
+                        <li>Submit weekly reports</li>
+                        <li>Track progress in real-time</li>
+                        <li>Chat with supervisors</li>
                     </ul>
                 </div>
-
-                <!-- Feature 2: Supervisor -->
                 <div class="border border-gray-200 rounded-xl p-6 hover:shadow-md transition">
                     <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-4">
                         <i class="fas fa-user-tie text-blue-600 text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900">For Supervisors</h3>
+                    <h3 class="text-xl font-semibold text-gray-900">Supervisors</h3>
                     <ul class="mt-3 space-y-2 text-gray-600">
-                        <li>✅ Approve student hours and reports quickly</li>
-                        <li>✅ Give instant feedback and support</li>
-                        <li>✅ Manage multiple interns in one dashboard</li>
-                        <li>✅ Export data and evaluations easily</li>
+                        <li>Approve hours and reports</li>
+                        <li>Provide feedback</li>
+                        <li>Manage multiple interns</li>
+                        <li>Export data easily</li>
                     </ul>
                 </div>
-
-                <!-- Feature 3: Coordinator -->
                 <div class="border border-gray-200 rounded-xl p-6 hover:shadow-md transition">
                     <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-4">
                         <i class="fas fa-chalkboard-teacher text-blue-600 text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900">For Coordinators</h3>
+                    <h3 class="text-xl font-semibold text-gray-900">Coordinators</h3>
                     <ul class="mt-3 space-y-2 text-gray-600">
-                        <li>✅ Oversee every student’s progress</li>
-                        <li>✅ Identify who needs extra support</li>
-                        <li>✅ View real-time analytics and stats</li>
-                        <li>✅ Ensure all requirements are met</li>
+                        <li>Monitor all student progress</li>
+                        <li>Identify students needing support</li>
+                        <li>View analytics and stats</li>
+                        <li>Ensure internship requirements are met</li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- CTA Section -->
-    <div class="bg-gradient-to-r from-blue-700 to-blue-800 py-16">
-        <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-white">Simplify your internship journey today</h2>
-            <p class="mt-4 text-blue-100 text-lg">
-                Join students, teachers, and companies already using InternHub to stay organized and connected.
-            </p>
-            <div class="mt-8">
-                <a href="auth.php" class="inline-block bg-white text-blue-700 hover:bg-gray-100 px-6 py-3 rounded-lg font-semibold text-lg transition">
-                    Create Your Free Account
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
     <footer class="bg-gray-900 text-white py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="text-gray-400">
-                &copy; 2025 InternHub — ECL – Escola de Comércio de Lisboa
-            </p>
-            <p class="mt-2 text-sm text-gray-500">
-                Final Evaluation Project — Ruben Alexandre Nobre Lima
-            </p>
+            <p class="text-gray-400">&copy; 2025 InternHub — ECL – Escola de Comércio de Lisboa</p>
+            <p class="mt-2 text-sm text-gray-500">Final Evaluation Project — Ruben Alexandre Nobre Lima</p>
         </div>
     </footer>
 </body>

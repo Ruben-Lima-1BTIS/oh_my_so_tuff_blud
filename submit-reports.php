@@ -25,7 +25,6 @@
 </head>
 <body class="bg-gray-50">
     <div class="flex min-h-screen">
-        <!-- Sidebar -->
         <aside class="w-64 bg-blue-700 text-white flex flex-col">
             <div class="p-6 border-b border-blue-600">
                 <h1 class="text-2xl font-bold">InternHub</h1>
@@ -61,10 +60,7 @@
                 </div>
             </nav>
         </aside>
-
-        <!-- Main Content -->
         <main class="flex-1 flex flex-col overflow-hidden">
-            <!-- Top Bar -->
             <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
                 <div class="flex items-center justify-between">
                </a>     <div>
@@ -82,10 +78,6 @@
                     </div>
                 </div>
             </header>
-
-            <!-- Report Form + Recent Submissions -->
-            <!-- Report Form -->
-<!-- Report Form -->
 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 max-w-2xl">
     <h3 class="text-xl font-semibold text-gray-800 mb-4">Submit Weekly Report</h3>
     <form id="reportForm" enctype="multipart/form-data">
@@ -127,8 +119,6 @@
         </div>
     </form>
 </div>
-
-<!-- Success Modal -->
 <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
     <div class="bg-white rounded-xl p-6 max-w-sm w-full mx-4 text-center">
         <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -141,7 +131,6 @@
         </button>
     </div>
 </div>
-                <!-- Recent Reports -->
                 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
                     <h3 class="text-xl font-semibold text-gray-800 mb-4">Recent Submissions</h3>
                     <div class="overflow-x-auto">
@@ -177,13 +166,11 @@
     </div>
 
     <script>
-        // Show filename when file is selected
         document.getElementById('reportFile').addEventListener('change', function(e) {
             const fileName = e.target.files[0]?.name || '';
             document.getElementById('fileName').textContent = fileName;
         });
 
-        // Handle form submission
         document.getElementById('reportForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -195,12 +182,10 @@
                 return;
             }
 
-            // Show the success modal
             document.getElementById('successModal').classList.remove('hidden');
-            this.reset(); // Reset the form after showing the modal
+            this.reset();
         });
 
-        // Close modal
         document.getElementById('closeModal').addEventListener('click', function() {
             document.getElementById('successModal').classList.add('hidden');
         });

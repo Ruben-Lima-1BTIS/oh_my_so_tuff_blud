@@ -26,12 +26,10 @@
 </head>
 <body class="bg-gray-50">
     <div class="flex min-h-screen">
-        <!-- Sidebar -->
 <aside class="w-64 bg-blue-700 text-white flex flex-col">
     <div class="p-6 border-b border-blue-600">
         <h1 class="text-2xl font-bold">InternHub</h1>
     </div>
-
     <nav class="p-4 flex flex-col min-h-[calc(100vh-5rem)]">
         <div class="space-y-2 flex-1">
             <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
@@ -51,7 +49,6 @@
                 <span class="font-medium">Messages</span>
             </a>
         </div>
-
         <div class="space-y-2 mt-auto">
             <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                 <i class="fas fa-cog"></i>
@@ -64,11 +61,7 @@
         </div>
     </nav>
 </aside>
-
-
-        <!-- Main Content -->
         <main class="flex-1 flex flex-col overflow-hidden">
-            <!-- Top Bar -->
             <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <div>
@@ -86,10 +79,7 @@
                     </div>
                 </div>
             </header>
-
-            <!-- Dashboard Content -->
             <div class="flex-1 overflow-y-auto p-6 space-y-6">
-                <!-- Action Widgets -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-blue-600 text-white p-6 rounded-xl shadow-lg hover:bg-blue-700 transition-colors duration-200 cursor-pointer">
                         <div class="flex items-center justify-between">
@@ -110,18 +100,13 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Charts Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Pie Chart -->
                     <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
                         <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Hour Status Overview</h3>
                         <div class="h-80">
                             <canvas id="pieChart"></canvas>
                         </div>
                     </div>
-
-                    <!-- Bar Chart -->
                     <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
                         <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Hours Made This Week</h3>
                         <div class="h-80">
@@ -132,9 +117,7 @@
             </div>
         </main>
     </div>
-
     <script>
-    // Pie Chart
     const pieCtx = document.getElementById('pieChart').getContext('2d');
     const pieChart = new Chart(pieCtx, {
         type: 'pie',

@@ -1,9 +1,58 @@
+<?php
+session_start();
+
+require 'db.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+
+    $roles = [
+        'student' => 'students',
+        'supervisor' => 'supervisors',
+        'coordinator' => 'coordinators'
+    ];
+
+    $user_found = false;
+    foreach ($roles as $role => $table) {
+        $stmt = $pdo->prepare("SELECT id, email, password_hash, first_login FROM $table WHERE email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user && password_verify($password, $user['password_hash'])) {
+            $user_found = true;
+
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['role'] = $role;
+            $_SESSION['email'] = $user['email'];
+
+            if ($user['first_login'] == 1) {
+                header("Location: change_password.php");
+                exit;
+            }
+
+            if ($role === 'student') {
+                header("Location: student_dashboard.php");
+            } elseif ($role === 'supervisor') {
+                header("Location: supervisor_dashboard.php");
+            } elseif ($role === 'coordinator') {
+                header("Location: coordinator_dashboard.php");
+            }
+            exit;
+        }
+    }
+
+    if (!$user_found) {
+        $error = "Invalid email or password.";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InternHub — Login / Register</title>
+    <title>InternHub — Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -22,120 +71,67 @@
             }
         }
     </script>
-    <style>
-        .form-container { transition: transform 0.3s ease, opacity 0.3s ease; }
-    </style>
 </head>
 <body class="bg-gray-50">
     <div class="flex min-h-screen">
-        <!-- Sidebar -->
         <aside class="w-64 bg-blue-700 text-white hidden md:flex flex-col items-center justify-center p-8 text-center">
             <h1 class="text-3xl font-bold mb-4">InternHub</h1>
             <p class="text-blue-200">Track your internship hours, reports, and progress.</p>
         </aside>
-
-        <!-- Main Content -->
-        <main class="flex-1 flex items-center justify-center p-4">
-            <!-- Go Back Button -->
-            <div class="absolute top-6 left-[calc(256px+24px)] md:left-[calc(256px+24px)]">
+        <main class="flex-1 flex items-center justify-center p-4 relative">
+            <div class="absolute top-6 left-6">
                 <a href="index.php" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
                     <i class="fas fa-arrow-left mr-2"></i> Back to Home
                 </a>
             </div>
-
             <div class="w-full max-w-md">
-                <!-- Login Form (default) -->
-                <div id="loginForm" class="form-container bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
                     <div class="text-center mb-6">
+                        <div class="mx-auto w-14 h-14 bg-blue-100 text-blue-600 flex items-center justify-center rounded-full mb-3">
+                            <i class="fas fa-lock text-2xl"></i>
+                        </div>
                         <h2 class="text-2xl font-bold text-gray-800">Welcome back</h2>
                         <p class="text-gray-600">Sign in to your account</p>
                     </div>
-                    <form>
+                    <?php if (isset($error)): ?>
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-center">
+                            <?= htmlspecialchars($error) ?>
+                        </div>
+                    <?php endif; ?>
+                    <form method="POST">
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                            <input type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                            <input 
+                                type="email" 
+                                name="email"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                required
+                            >
                         </div>
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                             <input 
                                 type="password" 
+                                name="password"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                                 required
                             >
-                            <div class="text-right mt-1">
-                                <a href="forgot_password.php" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
-                            </div>
                         </div>
-
                         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition">
                             Sign In
                         </button>
                     </form>
                     <div class="mt-6 text-center">
-                        <p class="text-gray-600">
-                            Don't have an account? 
-                            <button id="showRegister" class="text-blue-600 font-medium hover:underline">Register</button>
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Register Form (hidden by default) -->
-                <div id="registerForm" class="form-container bg-white p-8 rounded-xl shadow-lg border border-gray-200 hidden">
-                    <div class="text-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800">Create account</h2>
-                        <p class="text-gray-600">Join InternHub today</p>
-                    </div>
-                    <form>
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                            <input type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                            <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                            <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition">
-                            Create Account
-                        </button>
-                    </form>
-                    <div class="mt-6 text-center">
-                        <p class="text-gray-600">
-                            Already have an account? 
-                            <button id="showLogin" class="text-blue-600 font-medium hover:underline">Sign in</button>
+                        <p class="text-gray-600 text-sm">
+                            Don’t have an account? <span class="text-gray-800 font-medium">Ask your HR department.</span>
                         </p>
                     </div>
                 </div>
             </div>
         </main>
     </div>
-
-    <script>
-        // Add this at the beginning of the script section
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('form') === 'register') {
-                document.getElementById('loginForm').classList.add('hidden');
-                document.getElementById('registerForm').classList.remove('hidden');
-            }
-        };
-
-        document.getElementById('showRegister').addEventListener('click', function() {
-            document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('registerForm').classList.remove('hidden');
-        });
-
-        document.getElementById('showLogin').addEventListener('click', function() {
-            document.getElementById('registerForm').classList.add('hidden');
-            document.getElementById('loginForm').classList.remove('hidden');
-        });
-    </script>
+    <footer class="text-center py-6 text-gray-500 text-sm">
+        &copy; 2025 InternHub — Ruben Lima
+    </footer>
 </body>
 </html>

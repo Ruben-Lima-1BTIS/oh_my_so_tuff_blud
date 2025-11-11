@@ -26,7 +26,6 @@
 </head>
 <body class="bg-gray-50">
 <div class="flex min-h-screen">
-    <!-- Sidebar -->
     <aside class="w-64 bg-blue-700 text-white flex flex-col">
         <div class="p-6 border-b border-blue-600">
             <h1 class="text-2xl font-bold">InternHub</h1>
@@ -66,10 +65,7 @@
             </div>
         </nav>
     </aside>
-
-    <!-- Main Content -->
     <main class="flex-1 flex flex-col overflow-hidden">
-        <!-- Top Bar -->
         <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -87,10 +83,7 @@
                 </div>
             </div>
         </header>
-
-        <!-- Dashboard Content -->
         <div class="flex-1 overflow-y-auto p-6 space-y-6">
-            <!-- Overview Widgets -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
                     <p class="text-sm text-gray-600">Pending Hour Approvals</p>
@@ -109,16 +102,12 @@
                     <p class="text-2xl font-bold text-red-600">2</p>
                 </div>
             </div>
-
-            <!-- Chart: Hours Overview -->
             <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
                 <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Average Hours Logged</h3>
                 <div class="h-80">
                     <canvas id="hoursOverviewChart"></canvas>
                 </div>
             </div>
-
-            <!-- Pending Hours Table -->
             <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">Pending Hours for Approval</h3>
                 <div class="overflow-x-auto">
@@ -147,8 +136,6 @@
                     </table>
                 </div>
             </div>
-
-            <!-- Reports Pending Feedback -->
             <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">Reports Pending Feedback</h3>
                 <ul class="divide-y divide-gray-200">
@@ -177,8 +164,6 @@
         </div>
     </main>
 </div>
-
-<!-- Rejection Modal -->
 <div id="rejectModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 w-96 shadow-lg">
         <h3 class="text-lg font-semibold mb-3">Reject Hours</h3>
@@ -192,7 +177,6 @@
 </div>
 
 <script>
-    // Rejection Modal Logic
     function openRejectModal(student) {
         document.getElementById('rejectModal').classList.remove('hidden');
         document.getElementById('studentName').textContent = student;
@@ -200,8 +184,6 @@
     function closeRejectModal() {
         document.getElementById('rejectModal').classList.add('hidden');
     }
-
-    // ChartJS Example
     const ctx = document.getElementById('hoursOverviewChart').getContext('2d');
     new Chart(ctx, {
         type: 'bar',

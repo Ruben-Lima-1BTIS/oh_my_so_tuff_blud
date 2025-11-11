@@ -1,18 +1,7 @@
 <?php
 session_start();
 
-// DB connection
-$dsn = "mysql:host=localhost;dbname=internhub_nova;charset=utf8mb4";
-$user = "root";
-$pass = "";
-
-try {
-    $pdo = new PDO($dsn, $user, $pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
-} catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
-}
+require 'db.php';
 
 $success = "";
 $error = "";

@@ -25,7 +25,6 @@
 </head>
 <body class="bg-gray-50">
     <div class="flex min-h-screen">
-        <!-- Sidebar -->
         <aside class="w-64 bg-blue-700 text-white flex flex-col">
             <div class="p-6 border-b border-blue-600">
                 <h1 class="text-2xl font-bold">InternHub</h1>
@@ -61,10 +60,7 @@
                 </div>
             </nav>
         </aside>
-
-        <!-- Main Content -->
         <main class="flex-1 flex flex-col overflow-hidden">
-            <!-- Top Bar -->
             <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <div>
@@ -82,10 +78,7 @@
                     </div>
                 </div>
             </header>
-
-            <!-- Log Hours Form + Recent Logs -->
             <div class="flex-1 overflow-y-auto p-6 space-y-8">
-                <!-- Log Form -->
                 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 max-w-2xl">
                     <h3 class="text-xl font-semibold text-gray-800 mb-4">Add New Hours</h3>
                     <form id="logHoursForm">
@@ -109,8 +102,6 @@
                         </div>
                     </form>
                 </div>
-
-                <!-- Recent Logs -->
                 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
                     <h3 class="text-xl font-semibold text-gray-800 mb-4">Recent Entries</h3>
                     <div class="overflow-x-auto">
@@ -140,7 +131,6 @@
                                         <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Approved</span>
                                     </td>
                                 </tr>
-                                <!-- Add more rows as needed -->
                             </tbody>
                         </table>
                     </div>
@@ -148,8 +138,6 @@
             </div>
         </main>
     </div>
-
-    <!-- Hours Registered Modal -->
     <div id="hoursRegisteredModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
         <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full mx-4" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
             <div class="flex items-start">
@@ -170,7 +158,6 @@
 
             function showModal() {
                 modal.classList.remove('hidden');
-                // set focus to modal for accessibility
                 modal.querySelector('[role="dialog"]').focus && modal.querySelector('[role="dialog"]').focus();
             }
 
@@ -180,18 +167,13 @@
 
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                // In a real app: send via AJAX to PHP backend here
                 showModal();
-                // reset form inputs
                 form.reset();
-                // auto-hide after 2 seconds
                 setTimeout(hideModal, 2000);
             });
 
-            // Close when clicking the close button
             closeBtn.addEventListener('click', hideModal);
 
-            // Close when clicking outside the modal content
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) hideModal();
             });

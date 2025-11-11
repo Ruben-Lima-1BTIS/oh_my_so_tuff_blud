@@ -28,16 +28,12 @@
 </head>
 <body class="bg-gray-50">
     <div class="flex min-h-screen">
-        <!-- Sidebar -->
         <aside class="w-64 bg-blue-700 text-white hidden md:flex flex-col items-center justify-center p-8 text-center">
             <h1 class="text-3xl font-bold mb-4">InternHub</h1>
             <p class="text-blue-200">Track your internship hours, reports, and progress.</p>
         </aside>
-
-        <!-- Main Content -->
         <main class="flex-1 flex items-center justify-center p-4">
             <div class="w-full max-w-md">
-                <!-- Step 1: Email Input -->
                 <div id="step1" class="form-container bg-white p-8 rounded-xl shadow-lg border border-gray-200">
                     <div class="text-center mb-6">
                         <div class="mx-auto bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
@@ -61,8 +57,6 @@
                         </a>
                     </div>
                 </div>
-
-                <!-- Step 2: Code + New Password -->
                 <div id="step2" class="form-container bg-white p-8 rounded-xl shadow-lg border border-gray-200 hidden">
                     <div class="text-center mb-6">
                         <div class="mx-auto bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
@@ -99,14 +93,12 @@
     </div>
 
     <script>
-        // Show Step 2 after "Send Reset Code"
         document.querySelector('#step1 form').addEventListener('submit', function(e) {
             e.preventDefault();
             document.getElementById('step1').classList.add('hidden');
             document.getElementById('step2').classList.remove('hidden');
         });
 
-        // Go back to Step 1
         document.getElementById('backToStep1').addEventListener('click', function() {
             document.getElementById('step2').classList.add('hidden');
             document.getElementById('step1').classList.remove('hidden');

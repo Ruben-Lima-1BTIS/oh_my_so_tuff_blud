@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $user_found = false;
     foreach ($roles as $role => $table) {
-        $stmt = $pdo->prepare("SELECT id, email, password_hash, first_login FROM $table WHERE email = ?");
+        $stmt = $conn->prepare("SELECT id, email, password_hash, first_login FROM $table WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

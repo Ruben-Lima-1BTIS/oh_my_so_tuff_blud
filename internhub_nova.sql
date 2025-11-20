@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS internhub_nova CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+  CREATE DATABASE IF NOT EXISTS internhub_nova CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE internhub_nova;
 
 CREATE TABLE IF NOT EXISTS roles (
@@ -7,16 +7,16 @@ CREATE TABLE IF NOT EXISTS roles (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS coordinators (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
-  first_login TINYINT(1) DEFAULT 1
+  first_login TINYINT(1) DEFAULT 1,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS classes (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   course VARCHAR(150) NOT NULL,
   sigla VARCHAR(50) NOT NULL,
   year INT,
@@ -28,12 +28,12 @@ CREATE TABLE IF NOT EXISTS classes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS students (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
   class_id INT UNSIGNED NOT NULL,
-  first_login TINYINT(1) DEFAULT 1
+  first_login TINYINT(1) DEFAULT 1,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_students_class (class_id),
   CONSTRAINT fk_students_class FOREIGN KEY (class_id)
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS students (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS companies (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(200) NOT NULL,
   address VARCHAR(400),
   email VARCHAR(255),
@@ -50,12 +50,12 @@ CREATE TABLE IF NOT EXISTS companies (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS supervisors (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
   company_id INT UNSIGNED NOT NULL,
-  first_login TINYINT(1) DEFAULT 1
+  first_login TINYINT(1) DEFAULT 1,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_supervisors_company (company_id),
   CONSTRAINT fk_supervisors_company FOREIGN KEY (company_id)
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS supervisors (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS admins (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS admins (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS internships (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  company_id INT NOT NULL,
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  company_id INT UNSIGNED NOT NULL,
   title VARCHAR(200),
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
@@ -88,9 +88,9 @@ CREATE TABLE IF NOT EXISTS internships (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS student_internships (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  student_id INT NOT NULL,
-  internship_id INT NOT NULL,
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  student_id INT UNSIGNED NOT NULL,
+  internship_id INT UNSIGNED NOT NULL,
   assigned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY ux_student_one_internship (student_id),
   CONSTRAINT fk_si_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
@@ -99,9 +99,9 @@ CREATE TABLE IF NOT EXISTS student_internships (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS supervisor_internships (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  supervisor_id INT NOT NULL,
-  internship_id INT NOT NULL,
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  supervisor_id INT UNSIGNED NOT NULL,
+  internship_id INT UNSIGNED NOT NULL,
   assigned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY ux_supervisor_one_internship (supervisor_id),
   CONSTRAINT fk_sii_supervisor FOREIGN KEY (supervisor_id) REFERENCES supervisors(id) ON DELETE CASCADE,
@@ -111,8 +111,8 @@ CREATE TABLE IF NOT EXISTS supervisor_internships (
 
 CREATE TABLE IF NOT EXISTS hours (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  student_id INT NOT NULL,
-  internship_id INT NOT NULL,
+  student_id INT UNSIGNED NOT NULL,
+  internship_id INT UNSIGNED NOT NULL,
   date DATE NOT NULL,
   start_time TIME NOT NULL,
   end_time TIME NOT NULL,
@@ -133,9 +133,9 @@ CREATE TABLE IF NOT EXISTS hours (
 CREATE TABLE IF NOT EXISTS conversations (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   user1_role ENUM('student','supervisor','coordinator','admin') NOT NULL,
-  user1_id INT NOT NULL,
+  user1_id INT UNSIGNED NOT NULL,
   user2_role ENUM('student','supervisor','coordinator','admin') NOT NULL,
-  user2_id INT NOT NULL,
+  user2_id INT UNSIGNED NOT NULL,
   convo_key VARCHAR(100) NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY ux_convo_key (convo_key),
@@ -146,7 +146,7 @@ CREATE TABLE IF NOT EXISTS messages (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   conversation_id BIGINT NOT NULL,
   sender_role ENUM('student','supervisor','coordinator','admin') NOT NULL,
-  sender_id INT NOT NULL,
+  sender_id INT UNSIGNED NOT NULL,
   body TEXT NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   read_at DATETIME,

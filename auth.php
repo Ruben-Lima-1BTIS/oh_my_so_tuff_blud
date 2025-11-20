@@ -20,26 +20,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && password_verify($password, $user['password_hash'])) {
-            $user_found = true;
+    $user_found = true;
 
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['role'] = $role;
-            $_SESSION['email'] = $user['email'];
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['role'] = $role;
+    $_SESSION['email'] = $user['email'];
+    $_SESSION['first_login'] = $user['first_login']; // <--- important
+    $_SESSION['table'] = $table;                   // <--- needed for create_password.php
 
-            if ($user['first_login'] == 1) {
-                header("Location: change_password.php");
-                exit;
-            }
+    if ($user['first_login'] == 1) {
+        header("Location: change_password.php");
+        exit;
+    }
 
-            if ($role === 'student') {
-                header("Location: student_dashboard.php");
-            } elseif ($role === 'supervisor') {
-                header("Location: supervisor_dashboard.php");
-            } elseif ($role === 'coordinator') {
-                header("Location: coordinator_dashboard.php");
-            }
-            exit;
-        }
+    // redirect to correct dashboard
+    if ($role === 'student') header("Location: student_dashboard.php");
+    elseif ($role === 'supervisor') header("Location: supervisor_dashboard.php");
+    elseif ($role === 'coordinator') header("Location: coordinator_dashboard.php");
+
+    exit;
+}
+
     }
 
     if (!$user_found) {

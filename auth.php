@@ -34,9 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // redirect to correct dashboard
-    if ($role === 'student') header("Location: student_dashboard.php");
-    elseif ($role === 'supervisor') header("Location: supervisor_dashboard.php");
-    elseif ($role === 'coordinator') header("Location: coordinator_dashboard.php");
+    if ($role === 'student') header("Location: dashboard.php");
+    elseif ($role === 'supervisor') header("Location: dashboard_supervisor.php");
+    elseif ($role === 'coordinator') header("Location: dashboard_coordinator.php");
 
     exit;
 }
@@ -131,8 +131,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </main>
     </div>
-    <footer class="text-center py-6 text-gray-500 text-sm">
-        &copy; 2025 InternHub — Ruben Lima
-    </footer>
 </body>
 </html>

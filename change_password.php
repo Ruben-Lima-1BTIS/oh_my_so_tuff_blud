@@ -95,7 +95,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <?= htmlspecialchars($error) ?>
                     </div>
                 <?php endif; ?>
-
                 <form method="POST">
                     <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
                     <div class="flex w-full  border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" style="position: relative;">

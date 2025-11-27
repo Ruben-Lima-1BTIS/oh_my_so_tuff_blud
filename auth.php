@@ -3,6 +3,7 @@ session_start();
 
 require 'db.php';
 
+// pegar os dados fornecidos no form
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
@@ -13,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'coordinator' => 'coordinators'
     ];
 
+    // procurar o user com o email e password fornecidos
     $user_found = false;
     foreach ($roles as $role => $table) {
         $stmt = $conn->prepare("SELECT id, email, password_hash, first_login FROM $table WHERE email = ?");
@@ -22,27 +24,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user && password_verify($password, $user['password_hash'])) {
     $user_found = true;
 
+    // guardar as informacoes do user na sessao
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['role'] = $role;
     $_SESSION['email'] = $user['email'];
-    $_SESSION['first_login'] = $user['first_login']; // <--- important
-    $_SESSION['table'] = $table;                   // <--- needed for create_password.php
+    $_SESSION['first_login'] = $user['first_login'];
+    $_SESSION['table'] = $table;
 
+    // se for o primeiro login do utilizador, redirecionamos para mudar a password dada pelo HR
     if ($user['first_login'] == 1) {
         header("Location: change_password.php");
         exit;
     }
 
-    // redirect to correct dashboard
+    // depois lemos o role guardado na sessao e redirecionamos para o dashboard correto
     if ($role === 'student') header("Location: dashboard.php");
     elseif ($role === 'supervisor') header("Location: dashboard_supervisor.php");
     elseif ($role === 'coordinator') header("Location: dashboard_coordinator.php");
-
     exit;
 }
-
     }
-
     if (!$user_found) {
         $error = "Invalid email or password.";
     }

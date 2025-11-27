@@ -1,19 +1,18 @@
 <?php
 session_start();
 
-// Use the existing database connection
+
 require_once __DIR__ . '/db.php';
 
 $success = "";
 $error = "";
 
-// Handle form submission
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $type = $_POST['type'];
 
     try {
         if ($type === 'class') {
-            // classes table in SQL: course, sigla, year, coordinator_id
             $course = trim($_POST['course'] ?? '');
             $sigla = trim($_POST['sigla'] ?? '');
             $year = isset($_POST['year']) && $_POST['year'] !== '' ? (int)$_POST['year'] : null;
@@ -51,19 +50,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $class_id = isset($_POST['class_id']) && $_POST['class_id'] !== '' ? (int)$_POST['class_id'] : null;
             $plain_password = $_POST['password'] ?? '';
 
-            // Make class optional: only require name, email, password
             if ($name === '' || $email === '' || $plain_password === '') {
                 $error = "Name, email and password are required.";
             } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $error = "Invalid coordinator email address.";
             } else {
                 $password = password_hash($plain_password, PASSWORD_DEFAULT);
-                // Insert coordinator
                 $stmt = $conn->prepare("INSERT INTO coordinators (name, email, password_hash) VALUES (?, ?, ?)");
                 $stmt->execute([$name, $email, $password]);
                 $coord_id = $conn->lastInsertId();
 
-                // Link the selected class to this coordinator only if provided
                 if ($class_id !== null) {
                     $upd = $conn->prepare("UPDATE classes SET coordinator_id = ? WHERE id = ?");
                     $upd->execute([$coord_id, $class_id]);
@@ -110,12 +106,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = "Invalid student email address.";
             } else {
                 $password = password_hash($plain_password, PASSWORD_DEFAULT);
-                // Insert student
                 $stmt = $conn->prepare("INSERT INTO students (name, email, password_hash, class_id) VALUES (?, ?, ?, ?)");
                 $stmt->execute([$name, $email, $password, $class_id]);
                 $student_id = $conn->lastInsertId();
 
-                // Assign internship via linking table (required)
                 $link = $conn->prepare("INSERT INTO student_internships (student_id, internship_id) VALUES (?, ?)");
                 $link->execute([$student_id, $internship_id]);
 
@@ -148,7 +142,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($supervisor_id === null || $internship_id === null) {
                 $error = "Supervisor and internship are required.";
             } else {
-                // Check if already assigned
                 $check = $conn->prepare("SELECT id FROM supervisor_internships WHERE supervisor_id = ? AND internship_id = ?");
                 $check->execute([$supervisor_id, $internship_id]);
                 if ($check->rowCount() > 0) {
@@ -168,7 +161,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($student_id === null || $internship_id === null) {
                 $error = "Student and internship are required.";
             } else {
-                // Check if student already assigned to an internship
                 $check = $conn->prepare("SELECT id FROM student_internships WHERE student_id = ?");
                 $check->execute([$student_id]);
                 if ($check->rowCount() > 0) {
@@ -190,7 +182,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch data for dropdowns (use existing schema names)
 $companies = $conn->query("SELECT id, name FROM companies")->fetchAll(PDO::FETCH_ASSOC);
 $classes = $conn->query("SELECT id, course, sigla, year FROM classes")->fetchAll(PDO::FETCH_ASSOC);
 $internships = $conn->query("SELECT id, title FROM internships")->fetchAll(PDO::FETCH_ASSOC);
@@ -217,7 +208,6 @@ $students = $conn->query("SELECT id, name FROM students")->fetchAll(PDO::FETCH_A
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
-    <!-- CLASS -->
     <form method="POST" class="bg-white p-4 rounded mb-4 shadow">
         <h2 class="font-semibold mb-2">Create Class</h2>
         <input type="hidden" name="type" value="class">
@@ -235,7 +225,6 @@ $students = $conn->query("SELECT id, name FROM students")->fetchAll(PDO::FETCH_A
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Create Class</button>
     </form>
 
-    <!-- COMPANY -->
     <form method="POST" class="bg-white p-4 rounded mb-4 shadow">
         <h2 class="font-semibold mb-2">Create Company</h2>
         <input type="hidden" name="type" value="company">
@@ -246,7 +235,6 @@ $students = $conn->query("SELECT id, name FROM students")->fetchAll(PDO::FETCH_A
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Create Company</button>
     </form>
 
-    <!-- COORDINATOR -->
     <form method="POST" class="bg-white p-4 rounded mb-4 shadow">
         <h2 class="font-semibold mb-2">Create Coordinator</h2>
         <input type="hidden" name="type" value="coordinator">
@@ -254,7 +242,6 @@ $students = $conn->query("SELECT id, name FROM students")->fetchAll(PDO::FETCH_A
         <input type="email" name="email" placeholder="Email" class="border p-2 rounded w-full mb-2" required>
         <input type="password" name="password" placeholder="Password" class="border p-2 rounded w-full mb-2" required>
 
-        <!-- class assignment is optional now (no required attribute) -->
         <select name="class_id" class="border p-2 rounded w-full mb-2">
             <option value="">Assign to Class (optional)</option>
             <?php foreach($classes as $c): ?>
@@ -266,7 +253,6 @@ $students = $conn->query("SELECT id, name FROM students")->fetchAll(PDO::FETCH_A
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Create Coordinator</button>
     </form>
 
-    <!-- INTERNSHIP -->
     <form method="POST" class="bg-white p-4 rounded mb-4 shadow">
         <h2 class="font-semibold mb-2">Create Internship</h2>
         <input type="hidden" name="type" value="internship">
@@ -285,7 +271,6 @@ $students = $conn->query("SELECT id, name FROM students")->fetchAll(PDO::FETCH_A
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Create Internship</button>
     </form>
 
-    <!-- STUDENT -->
     <form method="POST" class="bg-white p-4 rounded mb-4 shadow">
         <h2 class="font-semibold mb-2">Create Student</h2>
         <input type="hidden" name="type" value="student">
@@ -311,7 +296,6 @@ $students = $conn->query("SELECT id, name FROM students")->fetchAll(PDO::FETCH_A
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Create Student</button>
     </form>
 
-    <!-- SUPERVISOR -->
     <form method="POST" class="bg-white p-4 rounded mb-4 shadow">
         <h2 class="font-semibold mb-2">Create Supervisor</h2>
         <input type="hidden" name="type" value="supervisor">
@@ -329,7 +313,6 @@ $students = $conn->query("SELECT id, name FROM students")->fetchAll(PDO::FETCH_A
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Create Supervisor</button>
     </form>
 
-    <!-- ASSIGN SUPERVISOR TO INTERNSHIP -->
     <form method="POST" class="bg-white p-4 rounded mb-4 shadow">
         <h2 class="font-semibold mb-2">Assign Supervisor to Internship</h2>
         <input type="hidden" name="type" value="assign_supervisor_internship">
@@ -351,7 +334,6 @@ $students = $conn->query("SELECT id, name FROM students")->fetchAll(PDO::FETCH_A
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Assign Supervisor</button>
     </form>
 
-    <!-- ASSIGN STUDENT TO INTERNSHIP -->
     <form method="POST" class="bg-white p-4 rounded mb-4 shadow">
         <h2 class="font-semibold mb-2">Assign Student to Internship</h2>
         <input type="hidden" name="type" value="assign_student_internship">

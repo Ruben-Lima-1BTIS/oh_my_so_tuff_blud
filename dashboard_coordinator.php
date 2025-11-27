@@ -2,7 +2,7 @@
 session_start();
 require 'db.php';
 
-// Ensure only coordinators can access
+// prevenir qualquer outro role de aceder a esta pagina
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'coordinator') {
     header("Location: auth.php");
     exit;
@@ -10,15 +10,15 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'coordinator') {
 
 $coordinator_id = $_SESSION['user_id'];
 
-// Get all classes for this coordinator
+// pegar todas as turmas deste coordenador
 $stmt = $conn->prepare("SELECT id, sigla AS class_name FROM classes WHERE coordinator_id = ?");
 $stmt->execute([$coordinator_id]);
 $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Determine selected class from GET param, fallback to first class
+// ver qual turma foi selecionada
 $class_id = isset($_GET['class_id']) ? intval($_GET['class_id']) : ($classes[0]['id'] ?? null);
 
-// Get selected class name for display
+// pegar o nome da turma selecionada para mostrar
 $selected_class_name = null;
 foreach ($classes as $c) {
     if ($c['id'] == $class_id) {
@@ -27,26 +27,21 @@ foreach ($classes as $c) {
     }
 }
 
-// Get coordinator info
+// pegar a informacao do coordenador
 $stmt = $conn->prepare("SELECT name AS coordinator_name FROM coordinators WHERE id = ?");
 $stmt->execute([$coordinator_id]);
 $coordinator = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// If no classes, prevent further errors
+// se o coordenador nao tiver nenhuma turma atribuida
 if (!$class_id) {
     die("No classes assigned to this coordinator.");
 }
 
-/* -----------------------------
-   TOTAL STUDENTS IN SELECTED CLASS
---------------------------------*/
+// selecionar todos os alunos da turma selecionada
 $stmt = $conn->prepare("SELECT COUNT(*) FROM students WHERE class_id = ?");
 $stmt->execute([$class_id]);
 $total_students = $stmt->fetchColumn();
 
-/* -----------------------------
-   STUDENT DASHBOARD DATA
---------------------------------*/
 $stmt = $conn->prepare("
     SELECT 
         s.id,
@@ -65,9 +60,8 @@ $stmt = $conn->prepare("
 $stmt->execute([$class_id]);
 $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-/* -----------------------------
-   CHART DATA — HOURS THIS WEEK
---------------------------------*/
+
+// horas feiras esta semana por aluno
 $stmt = $conn->prepare("
     SELECT 
         s.name AS student_name,
@@ -112,7 +106,7 @@ tailwind.config = {
 <body class="bg-gray-50">
 <div class="flex min-h-screen">
 
-<!-- SIDEBAR -->
+<!-- menu lateral -->
 <aside class="w-64 bg-blue-700 text-white flex flex-col">
     <div class="p-6 border-b border-blue-600">
         <h1 class="text-2xl font-bold">InternHub</h1>
@@ -143,7 +137,6 @@ tailwind.config = {
     </nav>
 </aside>
 
-<!-- MAIN -->
 <main class="flex-1 flex flex-col overflow-hidden">
 <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4 flex justify-between items-center">
     <div>
@@ -172,7 +165,7 @@ tailwind.config = {
 
 <div class="flex-1 overflow-y-auto p-6 space-y-6">
 
-<!-- TOP STATS -->
+<!-- estatisticas dos alunos resumida -->
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
     <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
         <p class="text-sm text-gray-600">Total Students</p>
@@ -192,13 +185,13 @@ tailwind.config = {
     </div>
 </div>
 
-<!-- CHART -->
+<!-- graficos chart.js -->
 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
     <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Hours Logged This Week</h3>
     <div class="h-80"><canvas id="studentHoursChart"></canvas></div>
 </div>
 
-<!-- STUDENT TABLE -->
+<!-- tabela dos alunos -->
 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
     <h3 class="text-xl font-semibold text-gray-800 mb-4">Student Progress</h3>
     <div class="overflow-x-auto">

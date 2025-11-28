@@ -58,6 +58,14 @@ foreach ($days as $index => $day) {
     $stmt->execute([$student_id, $index + 2]); // Mon=2
     $weekData[$day] = (float) ($stmt->fetchColumn() ?? 0);
 }
+
+// fetch student's display name (fallback to session email or generic)
+$stmt = $conn->prepare("SELECT name FROM students WHERE id = ?");
+$stmt->execute([$student_id]);
+$user_name = $stmt->fetchColumn();
+if ($user_name === false || $user_name === null || $user_name === '') {
+    $user_name = $_SESSION['email'] ?? 'Student';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -114,7 +122,7 @@ foreach ($days as $index => $day) {
 <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
     <div class="flex items-center justify-between">
         <div>
-            <h2 class="text-2xl font-semibold text-gray-800">Hello, <?= $_SESSION['name'] ?></h2>
+            <h2 class="text-2xl font-semibold text-gray-800">Hello, <?= htmlspecialchars($user_name) ?></h2>
             <p class="text-gray-600">Welcome back to your dashboard</p>
         </div>
         <div class="flex items-center space-x-4">
@@ -122,7 +130,7 @@ foreach ($days as $index => $day) {
                 <i class="fas fa-user text-gray-500"></i>
             </div>
             <div>
-                <p class="font-medium text-gray-800"><?= $_SESSION['email'] ?></p>
+                <p class="font-medium text-gray-800"><?= htmlspecialchars($user_name) ?></p>
                 <p class="text-sm text-gray-500">Intern</p>
             </div>
         </div>

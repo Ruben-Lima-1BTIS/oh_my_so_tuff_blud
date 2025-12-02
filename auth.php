@@ -128,7 +128,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                                     aria-label="Show password"
                                 ></button>
+                                
                             </div>
+                            <div class="mt-1 text-right text-xs">
+                            <a href="forgot_password.php" class="text-gray-700 hover:underline font-medium">
+                                Forgot Password?
+                            </a>
+                        </div>
                         </div>
                         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition">
                             Sign In

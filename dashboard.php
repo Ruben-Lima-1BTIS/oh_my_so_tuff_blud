@@ -164,8 +164,8 @@ if ($user_name === false || $user_name === null || $user_name === '') {
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
             <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Hour Status Overview</h3>
-            <div class="h-80">
-                <canvas id="pieChart"></canvas>
+            <div class="h-80" style="height:340px;display:flex;align-items:center;justify-content:center;">
+                <canvas id="pieChart" style="max-height:320px"></canvas>
             </div>
         </div>
         <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">

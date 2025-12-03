@@ -34,7 +34,7 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="auth.php" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                    <a href="overall_actions/auth.php" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
                         Login
                     </a>
                 </div>
@@ -49,7 +49,7 @@
             InternHub simplifies internships. Log hours, submit reports, and track progress — all in one platform for students, supervisors, and coordinators.
         </p>
         <div class="mt-10">
-            <a href="auth.php" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium text-lg transition shadow-md">
+            <a href="overall_actions/auth.php" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium text-lg transition shadow-md">
                 Login
             </a>
         </div>

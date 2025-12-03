@@ -109,9 +109,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 olho
                             </button>
                         </div>
-                        <!-- Single live feedback message (shows first unmet rule or success) -->
+                        <!-- requerimentos de password live (mostra a primeira regra que não for cumprida) -->
                         <p id="passwordMessage" class="mt-2 text-sm text-gray-600"></p>
-
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
                         <input 
@@ -212,9 +211,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if (confirmInput) confirmInput.addEventListener('input', validate);
         validate();
 
-        // initialize toggle button icon and aria-label if exists
         if (toggleButton && passwordInput) {
-            // password starts hidden -> show eye (olho) icon
             toggleButton.innerHTML = eyeSvg;
             toggleButton.setAttribute('aria-label', 'Show password');
 
@@ -224,11 +221,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 passwordInput.setAttribute('type', isHidden ? 'text' : 'password');
 
                 if (isHidden) {
-                    // now visible -> show eye-off (esconder)
                     toggleButton.innerHTML = eyeOffSvg;
                     toggleButton.setAttribute('aria-label', 'Hide password');
                 } else {
-                    // now hidden -> show eye (olho)
                     toggleButton.innerHTML = eyeSvg;
                     toggleButton.setAttribute('aria-label', 'Show password');
                 }

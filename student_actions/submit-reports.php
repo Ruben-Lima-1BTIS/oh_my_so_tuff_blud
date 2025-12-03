@@ -1,6 +1,16 @@
 <?php
 session_start();
-require 'db.php';
+
+// Fix: Use correct path to db.php (now inside dont_touch_kinda_stuff)
+if (file_exists(__DIR__ . '/../dont_touch_kinda_stuff/db.php')) {
+    require_once __DIR__ . '/../dont_touch_kinda_stuff/db.php';
+} elseif (file_exists(__DIR__ . '/../db.php')) {
+    require_once __DIR__ . '/../db.php';
+} elseif (file_exists(__DIR__ . '/db.php')) {
+    require_once __DIR__ . '/db.php';
+} else {
+    die('Database connection file not found.');
+}
 
 // require logged in student
 $student_id = $_SESSION['user_id'] ?? null;
@@ -97,20 +107,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // id, student_id, internship_id, title, content, submitted_at, status, supervisor_reviewed_by, supervisor_comment
             try {
                 $internship_id = $internship['id'] ?? null;
-                // Title includes week and original filename so we can show week later
                 $originalName = pathinfo($file['name'], PATHINFO_BASENAME);
                 $title = "Week {$selectedWeek} - {$originalName}";
                 $relativePath = 'uploads/reports/' . $student_id . '/' . $uniqueName;
 
+                // Fix: Use the correct column name for timestamp (replace 'submitted_at' with 'created_at' or your actual column)
                 $stmt = $conn->prepare("
-                    INSERT INTO reports (student_id, internship_id, title, content, submitted_at, status)
-                    VALUES (?, ?, ?, ?, NOW(), 'pending')
+                    INSERT INTO reports (student_id, title, file_path, created_at, status)
+                    VALUES (?, ?, ?, NOW(), 'pending')
                 ");
-                $stmt->execute([$student_id, $internship_id, $title, $relativePath]);
+                $stmt->execute([$student_id, $title, $relativePath]);
 
                 $success = 'Report submitted successfully.';
             } catch (Exception $e) {
-                // record DB error for display, but keep the uploaded file
                 $errors[] = 'Database error while saving report record: ' . $e->getMessage();
                 $success = 'File uploaded successfully (but DB save failed).';
             }
@@ -121,11 +130,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // fetch recent submissions (best-effort)
 $recentReports = [];
 try {
-    $stmt = $conn->prepare("SELECT id, title, content, status, submitted_at FROM reports WHERE student_id = ? ORDER BY submitted_at DESC LIMIT 10");
+    $stmt = $conn->prepare("SELECT id, title, file_path, status, created_at FROM reports WHERE student_id = ? ORDER BY created_at DESC LIMIT 10");
     $stmt->execute([$student_id]);
     $recentReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     $recentReports = [];
+}
+
+function relUrl($path) {
+    $base = dirname($_SERVER['SCRIPT_NAME']);
+    return $base . $path;
 }
 ?>
 <!DOCTYPE html>
@@ -153,7 +167,7 @@ try {
         }
     </script>
 </head>
-<body class="bg-gray-50">
+<body>
     <div class="flex min-h-screen">
         <aside class="w-64 bg-blue-700 text-white flex flex-col">
             <div class="p-6 border-b border-blue-600">
@@ -161,29 +175,29 @@ try {
             </div>
             <nav class="p-4 flex flex-col min-h-[calc(100vh-5rem)]">
                 <div class="space-y-2 flex-1">
-                    <a href="dashboard.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= relUrl('/dashboard.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-home"></i>
                         <span class="font-medium">Dashboard</span>
                     </a>
-                    <a href="log_hours.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= relUrl('/log_hours.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-clock"></i>
                         <span class="font-medium">Log Hours</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
+                    <a href="<?= relUrl('/submit-reports.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
                         <i class="fas fa-file-alt"></i>
                         <span class="font-medium">Submit Reports</span>
                     </a>
-                    <a href="messages.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/overall_actions/messages.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-comments"></i>
                         <span class="font-medium">Messages</span>
                     </a>
                 </div>
                 <div class="space-y-2 mt-auto">
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/overall_actions/settings.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-cog"></i>
                         <span class="font-medium">Settings</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/overall_actions/logout.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-sign-out-alt"></i>
                         <span class="font-medium">Logout</span>
                     </a>
@@ -301,15 +315,14 @@ try {
                                             } elseif (!empty($r['title'])) {
                                                 $weekDisplay = htmlspecialchars($r['title']);
                                             }
-                                            $submittedAt = !empty($r['submitted_at']) ? htmlspecialchars(date('Y-m-d', strtotime($r['submitted_at']))) : '-';
+                                            $submittedAt = !empty($r['created_at']) ? htmlspecialchars(date('Y-m-d', strtotime($r['created_at']))) : '-';
                                             $status = strtolower($r['status'] ?? 'pending');
 
                                             // changed: build a download link with suggested filename and fallback class
                                             $fileLink = '';
-                                            if (!empty($r['content'])) {
-                                                $path = htmlspecialchars($r['content']);
-                                                $basename = htmlspecialchars(basename($r['content']));
-                                                // add download attribute and a class/data attribute for JS fallback
+                                            if (!empty($r['file_path'])) {
+                                                $path = htmlspecialchars($r['file_path']);
+                                                $basename = htmlspecialchars(basename($r['file_path']));
                                                 $fileLink = '<a href="' . $path . '" class="text-blue-600 hover:underline download-link" download="' . $basename . '" data-filename="' . $basename . '">Download</a>';
                                             }
                                         ?>

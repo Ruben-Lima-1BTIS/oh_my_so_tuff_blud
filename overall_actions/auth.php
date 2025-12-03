@@ -1,7 +1,16 @@
 <?php
 session_start();
 
-require 'db.php';
+// Fix: Use correct path to db.php (now inside dont_touch_kinda_stuff)
+if (file_exists(__DIR__ . '/../dont_touch_kinda_stuff/db.php')) {
+    require_once __DIR__ . '/../dont_touch_kinda_stuff/db.php';
+} elseif (file_exists(__DIR__ . '/../db.php')) {
+    require_once __DIR__ . '/../db.php';
+} elseif (file_exists(__DIR__ . '/db.php')) {
+    require_once __DIR__ . '/db.php';
+} else {
+    die('Database connection file not found.');
+}
 
 // pegar os dados fornecidos no form
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -38,9 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // depois lemos o role guardado na sessao e redirecionamos para o dashboard correto
-    if ($role === 'student') header("Location: dashboard.php");
-    elseif ($role === 'supervisor') header("Location: dashboard_supervisor.php");
-    elseif ($role === 'coordinator') header("Location: dashboard_coordinator.php");
+    if ($role === 'student') header("Location: ../student_actions/dashboard.php");
+    elseif ($role === 'supervisor') header("Location: ../supervisor_actions/dashboard_supervisor.php");
+    elseif ($role === 'coordinator') header("Location: ../coordinator_actions/dashboard_coordinator.php");
     exit;
 }
     }
@@ -82,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </aside>
         <main class="flex-1 flex items-center justify-center p-4 relative">
             <div class="absolute top-6 left-6">
-                <a href="index.php" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+                <a href="../index.php" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
                     <i class="fas fa-arrow-left mr-2"></i> Back to Home
                 </a>
             </div>

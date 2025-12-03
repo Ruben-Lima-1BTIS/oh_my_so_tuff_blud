@@ -1,6 +1,16 @@
 <?php
 session_start();
-require 'db.php';
+
+// Fix: Use correct path to db.php (now inside dont_touch_kinda_stuff)
+if (file_exists(__DIR__ . '/../dont_touch_kinda_stuff/db.php')) {
+    require_once __DIR__ . '/../dont_touch_kinda_stuff/db.php';
+} elseif (file_exists(__DIR__ . '/../db.php')) {
+    require_once __DIR__ . '/../db.php';
+} elseif (file_exists(__DIR__ . '/db.php')) {
+    require_once __DIR__ . '/db.php';
+} else {
+    die('Database connection file not found.');
+}
 
 $student_id = $_SESSION['user_id'];
 
@@ -66,6 +76,12 @@ $user_name = $stmt->fetchColumn();
 if ($user_name === false || $user_name === null || $user_name === '') {
     $user_name = $_SESSION['email'] ?? 'Student';
 }
+
+// Helper for relative URLs (works for most setups)
+function relUrl($path) {
+    $base = dirname($_SERVER['SCRIPT_NAME']);
+    return $base . $path;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -80,36 +96,35 @@ if ($user_name === false || $user_name === null || $user_name === '') {
 <body class="bg-gray-50">
 <div class="flex min-h-screen">
 
-<!-- SIDEBAR -->
 <aside class="w-64 bg-blue-700 text-white flex flex-col">
     <div class="p-6 border-b border-blue-600">
         <h1 class="text-2xl font-bold">InternHub</h1>
     </div>
     <nav class="p-4 flex flex-col min-h-[calc(100vh-5rem)]">
         <div class="space-y-2 flex-1">
-            <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
+            <a href="<?= relUrl('/dashboard.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
                 <i class="fas fa-home"></i>
                 <span class="font-medium">Dashboard</span>
             </a>
-            <a href="log_hours.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+            <a href="<?= relUrl('/log_hours.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                 <i class="fas fa-clock"></i>
                 <span class="font-medium">Log Hours</span>
             </a>
-            <a href="submit-reports.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+            <a href="<?= relUrl('/submit-reports.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                 <i class="fas fa-file-alt"></i>
                 <span class="font-medium">Submit Reports</span>
             </a>
-            <a href="messages.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+            <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/overall_actions/messages.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                 <i class="fas fa-comments"></i>
                 <span class="font-medium">Messages</span>
             </a>
         </div>
         <div class="space-y-2 mt-auto">
-            <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+            <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/overall_actions/settings.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                 <i class="fas fa-cog"></i>
                 <span class="font-medium">Settings</span>
             </a>
-            <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+            <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/overall_actions/logout.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                 <i class="fas fa-sign-out-alt"></i>
                 <span class="font-medium">Logout</span>
             </a>

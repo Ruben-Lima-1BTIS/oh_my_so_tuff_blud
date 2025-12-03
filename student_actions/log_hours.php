@@ -1,6 +1,16 @@
 <?php
 session_start();
-require_once "db.php";
+
+// Fix: Use correct path to db.php (now inside dont_touch_kinda_stuff)
+if (file_exists(__DIR__ . '/../dont_touch_kinda_stuff/db.php')) {
+    require_once __DIR__ . '/../dont_touch_kinda_stuff/db.php';
+} elseif (file_exists(__DIR__ . '/../db.php')) {
+    require_once __DIR__ . '/../db.php';
+} elseif (file_exists(__DIR__ . '/db.php')) {
+    require_once __DIR__ . '/db.php';
+} else {
+    die('Database connection file not found.');
+}
 
 // ---------------------------
 // SECURITY CHECK
@@ -83,6 +93,11 @@ $stmt = $conn->prepare("
 ");
 $stmt->execute([$student_id, $internship_id]);
 $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+function relUrl($path) {
+    $base = dirname($_SERVER['SCRIPT_NAME']);
+    return $base . $path;
+}
 ?>
 
 <!DOCTYPE html>
@@ -104,19 +119,19 @@ $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <nav class="p-4 flex flex-col min-h-[calc(100vh-5rem)]">
             <div class="space-y-2 flex-1">
-                <a href="dashboard.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                <a href="<?= relUrl('/dashboard.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                     <i class="fas fa-home"></i>
                     <span class="font-medium">Dashboard</span>
                 </a>
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
+                <a href="<?= relUrl('/log_hours.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
                     <i class="fas fa-clock"></i>
                     <span class="font-medium">Log Hours</span>
                 </a>
-                <a href="submit-reports.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                <a href="<?= relUrl('/submit-reports.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                     <i class="fas fa-file-alt"></i>
                     <span class="font-medium">Submit Reports</span>
                 </a>
-                <a href="messages.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/overall_actions/messages.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                     <i class="fas fa-comments"></i>
                     <span class="font-medium">Messages</span>
                 </a>

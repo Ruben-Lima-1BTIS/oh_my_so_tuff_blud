@@ -1,6 +1,16 @@
 <?php
 session_start();
-require 'db.php';
+
+// Fix: Use correct path to db.php (now inside dont_touch_kinda_stuff)
+if (file_exists(__DIR__ . '/../dont_touch_kinda_stuff/db.php')) {
+    require_once __DIR__ . '/../dont_touch_kinda_stuff/db.php';
+} elseif (file_exists(__DIR__ . '/../db.php')) {
+    require_once __DIR__ . '/../db.php';
+} elseif (file_exists(__DIR__ . '/db.php')) {
+    require_once __DIR__ . '/db.php';
+} else {
+    die('Database connection file not found.');
+}
 
 // prevenir qualquer outro role de aceder a esta pagina
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'coordinator') {

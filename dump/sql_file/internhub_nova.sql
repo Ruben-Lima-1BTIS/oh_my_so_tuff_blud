@@ -28,11 +28,11 @@ CREATE TABLE IF NOT EXISTS classes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS students (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
-  class_id INT UNSIGNED NOT NULL,
+  class_id INT NOT NULL,
   first_login TINYINT(1) DEFAULT 1,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_students_class (class_id),
@@ -93,8 +93,10 @@ CREATE TABLE IF NOT EXISTS student_internships (
   internship_id INT UNSIGNED NOT NULL,
   assigned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY ux_student_one_internship (student_id),
-  CONSTRAINT fk_si_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-  CONSTRAINT fk_si_internship FOREIGN KEY (internship_id) REFERENCES internships(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_si_student FOREIGN KEY (student_id)
+  REFERENCES students(id) ON DELETE CASCADE,
+  CONSTRAINT fk_si_internship FOREIGN KEY (internship_id)
+  REFERENCES internships(id) ON DELETE RESTRICT,
   INDEX idx_si_internship (internship_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -122,9 +124,12 @@ CREATE TABLE IF NOT EXISTS hours (
   supervisor_comment VARCHAR(1000),
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   reviewed_at DATETIME,
-  CONSTRAINT fk_hours_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-  CONSTRAINT fk_hours_internship FOREIGN KEY (internship_id) REFERENCES internships(id) ON DELETE RESTRICT,
-  CONSTRAINT fk_hours_supervisor FOREIGN KEY (supervisor_reviewed_by) REFERENCES supervisors(id) ON DELETE SET NULL,
+  CONSTRAINT fk_hours_student FOREIGN KEY (student_id)
+  REFERENCES students(id) ON DELETE CASCADE,
+  CONSTRAINT fk_hours_internship FOREIGN KEY (internship_id)
+  REFERENCES internships(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_hours_supervisor FOREIGN KEY (supervisor_reviewed_by)
+  REFERENCES supervisors(id) ON DELETE SET NULL,
   INDEX idx_hours_student_date (student_id, date),
   INDEX idx_hours_internship_status (internship_id, status),
   INDEX idx_hours_date (date)
@@ -153,6 +158,17 @@ CREATE TABLE IF NOT EXISTS messages (
   CONSTRAINT fk_messages_conversation FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
   INDEX idx_messages_conversation (conversation_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE reports (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    title VARCHAR(255),
+    file_path VARCHAR(255),
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    feedback TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 
 DELIMITER $$
 

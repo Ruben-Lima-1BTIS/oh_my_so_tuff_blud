@@ -1,3 +1,20 @@
+<?php
+
+// Fix: Use correct path to db.php (now inside dont_touch_kinda_stuff)
+if (file_exists(__DIR__ . '/../dont_touch_kinda_stuff/db.php')) {
+    require_once __DIR__ . '/../dont_touch_kinda_stuff/db.php';
+} elseif (file_exists(__DIR__ . '/../db.php')) {
+    require_once __DIR__ . '/../db.php';
+} elseif (file_exists(__DIR__ . '/db.php')) {
+    require_once __DIR__ . '/db.php';
+} else {
+    die('Database connection file not found.');
+}
+function relUrl($path) {
+    $base = dirname($_SERVER['SCRIPT_NAME']);
+    return $base . $path;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,15 +48,15 @@
             </div>
             <nav class="p-4 flex flex-col min-h-[calc(100vh-5rem)]">
                 <div class="space-y-2 flex-1">
-                    <a href="dashboard.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/student_actions/dashboard.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-home"></i>
                         <span class="font-medium">Dashboard</span>
                     </a>
-                    <a href="log_hours.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/student_actions/log_hours.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-clock"></i>
                         <span class="font-medium">Log Hours</span>
                     </a>
-                    <a href="submit-reports.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/student_actions/submit-reports.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-file-alt"></i>
                         <span class="font-medium">Submit Reports</span>
                     </a>
@@ -49,11 +66,11 @@
                     </a>
                 </div>
                 <div class="space-y-2 mt-auto">
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/overall_actions/settings.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-cog"></i>
                         <span class="font-medium">Settings</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/overall_actions/logout.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-sign-out-alt"></i>
                         <span class="font-medium">Logout</span>
                     </a>

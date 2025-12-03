@@ -45,6 +45,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($date && $start_time && $end_time) {
         try {
+            // Prevent duplicate log for the same student + internship + date
+            $chk = $conn->prepare("SELECT COUNT(*) FROM hours WHERE student_id = ? AND internship_id = ? AND date = ?");
+            $chk->execute([$student_id, $internship_id, $date]);
+            $exists = (int) $chk->fetchColumn();
+
+            if ($exists > 0) {
+                echo json_encode(["success" => false, "error" => "You have already logged hours for this date."]);
+                exit;
+            }
+
             $stmt = $conn->prepare("
                 INSERT INTO hours (student_id, internship_id, date, start_time, end_time)
                 VALUES (?, ?, ?, ?, ?)

@@ -1,3 +1,133 @@
+<?php
+session_start();
+require 'db.php';
+
+// require logged in student
+$student_id = $_SESSION['user_id'] ?? null;
+if (!$student_id) {
+    header('Location: auth.php');
+    exit;
+}
+
+// load student's internship (prefer active, fallback to latest)
+$internship = null;
+try {
+    $stmt = $conn->prepare("
+        SELECT i.id, i.start_date, i.end_date, i.total_hours_required
+        FROM student_internships si
+        JOIN internships i ON si.internship_id = i.id
+        WHERE si.student_id = ? AND i.status = 'active'
+        ORDER BY si.assigned_at DESC
+        LIMIT 1
+    ");
+    $stmt->execute([$student_id]);
+    $internship = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$internship) {
+        $stmt = $conn->prepare("
+            SELECT i.id, i.start_date, i.end_date, i.total_hours_required
+            FROM student_internships si
+            JOIN internships i ON si.internship_id = i.id
+            WHERE si.student_id = ?
+            ORDER BY si.assigned_at DESC
+            LIMIT 1
+        ");
+        $stmt->execute([$student_id]);
+        $internship = $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+} catch (Exception $e) {
+    $internship = null;
+}
+
+// build weeks array: week number => human readable label
+$weeks = [];
+if ($internship) {
+    $start = new DateTime($internship['start_date']);
+    $end = new DateTime($internship['end_date']);
+    // normalize start to internship start (no shift)
+    $interval = new DateInterval('P7D');
+    $periodStart = clone $start;
+    $weekNum = 1;
+    while ($periodStart <= $end) {
+        $periodEnd = (clone $periodStart)->add(new DateInterval('P6D'));
+        if ($periodEnd > $end) $periodEnd = clone $end;
+        $label = sprintf("Week %d (%s — %s)", $weekNum, $periodStart->format('Y-m-d'), $periodEnd->format('Y-m-d'));
+        $weeks[$weekNum] = $label;
+        $weekNum++;
+        $periodStart->add($interval);
+    }
+}
+
+// prepare messages and handle POST upload
+$errors = [];
+$success = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $selectedWeek = isset($_POST['week']) ? (int)$_POST['week'] : 0;
+    if (!$selectedWeek || !array_key_exists($selectedWeek, $weeks)) {
+        $errors[] = 'Please select a valid week.';
+    }
+
+    if (!isset($_FILES['reportFile']) || $_FILES['reportFile']['error'] !== UPLOAD_ERR_OK) {
+        $errors[] = 'Please upload a valid file.';
+    } else {
+        $file = $_FILES['reportFile'];
+        $maxBytes = 10 * 1024 * 1024; // 10MB
+        if ($file['size'] > $maxBytes) $errors[] = 'File exceeds 10MB limit.';
+        // basic extension check
+        $allowed = ['pdf','doc','docx','txt'];
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($ext, $allowed)) $errors[] = 'Invalid file type.';
+    }
+
+    if (empty($errors)) {
+        // create uploads folder
+        $destDir = __DIR__ . '/uploads/reports/' . $student_id;
+        if (!is_dir($destDir)) mkdir($destDir, 0755, true);
+
+        // unique filename
+        $basename = pathinfo($file['name'], PATHINFO_FILENAME);
+        $safeBase = preg_replace('/[^A-Za-z0-9_\-]/', '_', $basename);
+        $uniqueName = $safeBase . '_' . time() . '.' . $ext;
+        $destPath = $destDir . '/' . $uniqueName;
+
+        if (!move_uploaded_file($file['tmp_name'], $destPath)) {
+            $errors[] = 'Failed to move uploaded file.';
+        } else {
+            // insert into existing reports table using its actual columns:
+            // id, student_id, internship_id, title, content, submitted_at, status, supervisor_reviewed_by, supervisor_comment
+            try {
+                $internship_id = $internship['id'] ?? null;
+                // Title includes week and original filename so we can show week later
+                $originalName = pathinfo($file['name'], PATHINFO_BASENAME);
+                $title = "Week {$selectedWeek} - {$originalName}";
+                $relativePath = 'uploads/reports/' . $student_id . '/' . $uniqueName;
+
+                $stmt = $conn->prepare("
+                    INSERT INTO reports (student_id, internship_id, title, content, submitted_at, status)
+                    VALUES (?, ?, ?, ?, NOW(), 'pending')
+                ");
+                $stmt->execute([$student_id, $internship_id, $title, $relativePath]);
+
+                $success = 'Report submitted successfully.';
+            } catch (Exception $e) {
+                // record DB error for display, but keep the uploaded file
+                $errors[] = 'Database error while saving report record: ' . $e->getMessage();
+                $success = 'File uploaded successfully (but DB save failed).';
+            }
+        }
+    }
+}
+
+// fetch recent submissions (best-effort)
+$recentReports = [];
+try {
+    $stmt = $conn->prepare("SELECT id, title, content, status, submitted_at FROM reports WHERE student_id = ? ORDER BY submitted_at DESC LIMIT 10");
+    $stmt->execute([$student_id]);
+    $recentReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $recentReports = [];
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -80,16 +210,32 @@
             </header>
 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 max-w-2xl">
     <h3 class="text-xl font-semibold text-gray-800 mb-4">Submit Weekly Report</h3>
-    <form id="reportForm" enctype="multipart/form-data">
+
+    <?php if (!empty($errors)): ?>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <?php foreach ($errors as $err) echo '<div>' . htmlspecialchars($err) . '</div>'; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($success): ?>
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <?= htmlspecialchars($success) ?>
+        </div>
+    <?php endif; ?>
+
+    <form id="reportForm" method="POST" enctype="multipart/form-data">
         <div class="space-y-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Week</label>
-                <select id="weekSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                <select id="weekSelect" name="week" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
                     <option value="">Select week</option>
-                    <option value="1">Week 1</option>
-                    <option value="2">Week 2</option>
-                    <option value="3">Week 3</option>
-                    <option value="4">Week 4</option>
+                    <?php if (!empty($weeks)): ?>
+                        <?php foreach ($weeks as $num => $label): ?>
+                            <option value="<?= $num ?>"><?= htmlspecialchars($label) ?></option>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <option value="">No internship assigned</option>
+                    <?php endif; ?>
                 </select>
             </div>
 
@@ -119,7 +265,8 @@
         </div>
     </form>
 </div>
-<div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+
+<div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 <?= $success ? '' : 'hidden' ?> flex items-center justify-center z-50">
     <div class="bg-white rounded-xl p-6 max-w-sm w-full mx-4 text-center">
         <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fas fa-check text-green-600 text-2xl"></i>
@@ -131,6 +278,7 @@
         </button>
     </div>
 </div>
+
                 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
                     <h3 class="text-xl font-semibold text-gray-800 mb-4">Recent Submissions</h3>
                     <div class="overflow-x-auto">
@@ -143,20 +291,48 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
-                                <tr>
-                                    <td class="px-4 py-3 text-sm text-gray-800">Week 3</td>
-                                    <td class="px-4 py-3 text-sm text-gray-800">2025-06-08</td>
-                                    <td class="px-4 py-3">
-                                        <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Approved</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-4 py-3 text-sm text-gray-800">Week 2</td>
-                                    <td class="px-4 py-3 text-sm text-gray-800">2025-06-01</td>
-                                    <td class="px-4 py-3">
-                                        <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pending</span>
-                                    </td>
-                                </tr>
+                                <?php if (!empty($recentReports)): ?>
+                                    <?php foreach ($recentReports as $r): ?>
+                                        <?php
+                                            // try to extract week from title if present ("Week N - ...")
+                                            $weekDisplay = '-';
+                                            if (!empty($r['title']) && preg_match('/Week\s*(\d+)/i', $r['title'], $m)) {
+                                                $weekDisplay = 'Week ' . $m[1];
+                                            } elseif (!empty($r['title'])) {
+                                                $weekDisplay = htmlspecialchars($r['title']);
+                                            }
+                                            $submittedAt = !empty($r['submitted_at']) ? htmlspecialchars(date('Y-m-d', strtotime($r['submitted_at']))) : '-';
+                                            $status = strtolower($r['status'] ?? 'pending');
+
+                                            // changed: build a download link with suggested filename and fallback class
+                                            $fileLink = '';
+                                            if (!empty($r['content'])) {
+                                                $path = htmlspecialchars($r['content']);
+                                                $basename = htmlspecialchars(basename($r['content']));
+                                                // add download attribute and a class/data attribute for JS fallback
+                                                $fileLink = '<a href="' . $path . '" class="text-blue-600 hover:underline download-link" download="' . $basename . '" data-filename="' . $basename . '">Download</a>';
+                                            }
+                                        ?>
+
+                                        <tr>
+                                            <td class="px-4 py-3 text-sm text-gray-800"><?= $weekDisplay ?></td>
+                                            <td class="px-4 py-3 text-sm text-gray-800"><?= $submittedAt ?> <?= $fileLink ? '<span class="ml-2">' . $fileLink . '</span>' : '' ?></td>
+                                            <td class="px-4 py-3">
+                                                <?php if ($status === 'approved'): ?>
+                                                    <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Approved</span>
+                                                <?php elseif ($status === 'rejected'): ?>
+                                                    <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Rejected</span>
+                                                <?php else: ?>
+                                                    <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td class="px-4 py-3 text-sm text-gray-800" colspan="3">No submissions yet.</td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -172,25 +348,47 @@
         });
 
         document.getElementById('reportForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const file = document.getElementById('reportFile').files[0];
-            const week = document.getElementById('weekSelect').value;
-
-            if (!file || !week) {
-                alert('Please select a week and upload a file.');
-                return;
-            }
-
-            document.getElementById('successModal').classList.remove('hidden');
-            this.reset();
+            // client-side continue to allow server submit; keep existing behavior minimal
         });
 
         document.getElementById('closeModal').addEventListener('click', function() {
             document.getElementById('successModal').classList.add('hidden');
         });
 
+        // if server reported success, show modal (already shown by server via class toggle)
+        // ...existing code...
 
+        // Fallback: force-download links with JS if browser ignores `download` attribute
+        document.addEventListener('click', function (e) {
+            const el = e.target.closest && e.target.closest('.download-link') || (e.target.classList && e.target.classList.contains('download-link') ? e.target : null);
+            if (!el) return;
+            e.preventDefault();
+
+            const url = el.href;
+            const filename = el.dataset.filename || 'report';
+
+            // Try fetch -> blob -> download
+            fetch(url, { credentials: 'same-origin' })
+                .then(resp => {
+                    if (!resp.ok) throw new Error('Network response was not ok');
+                    return resp.blob();
+                })
+                .then(blob => {
+                    const blobUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = blobUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    URL.revokeObjectURL(blobUrl);
+                })
+                .catch(() => {
+                    // last-resort: navigate to the file URL (may open in new tab)
+                    window.location.href = url;
+                });
+        });
     </script>
 </body>
 </html>

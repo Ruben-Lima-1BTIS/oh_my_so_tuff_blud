@@ -1,3 +1,13 @@
+<?php 
+// build a consistent relative URL based at the application's script directory
+function relUrl($path) {
+    // e.g. /20_11/oh_my_so_tuff_blud/coordinator_actions -> /20_11/oh_my_so_tuff_blud
+    $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+    // ensure single slash between base and path
+    return $base . '/' . ltrim($path, '/');
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,19 +42,19 @@
             </div>
             <nav class="p-4 flex flex-col min-h-[calc(100vh-5rem)]">
                 <div class="space-y-2 flex-1">
-                    <a href="dashboard_coordinator.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= relUrl('/dashboard_coordinator.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-home"></i>
                         <span class="font-medium">Dashboard</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= relUrl('/review_reports.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-file-alt"></i>
                         <span class="font-medium">Review Reports</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
+                    <a href="<?= relUrl('/student_progress.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
                         <i class="fas fa-file-alt"></i>
                         <span class="font-medium">Student Progress</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= relUrl('/overall_actions/messages.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-comments"></i>
                         <span class="font-medium">Messages</span>
                     </a>

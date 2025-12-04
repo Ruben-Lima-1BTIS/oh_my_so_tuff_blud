@@ -10,10 +10,80 @@ if (file_exists(__DIR__ . '/../dont_touch_kinda_stuff/db.php')) {
 } else {
     die('Database connection file not found.');
 }
+
+// ensure session available
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+// robust relUrl builder
 function relUrl($path) {
-    $base = dirname($_SERVER['SCRIPT_NAME']);
-    return $base . $path;
+    $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+    return $base . '/' . ltrim($path, '/');
 }
+
+// determine current user role and id
+$role = $_SESSION['role'] ?? 'student';
+$user_id = $_SESSION['user_id'] ?? null;
+
+// fetch display name depending on role (best-effort)
+$user_name = $_SESSION['email'] ?? 'User';
+try {
+    if ($user_id) {
+        if ($role === 'student') {
+            $stmt = $conn->prepare("SELECT name FROM students WHERE id = ? LIMIT 1");
+            $stmt->execute([$user_id]);
+            $tmp = $stmt->fetchColumn();
+            if ($tmp) $user_name = $tmp;
+        } elseif ($role === 'supervisor') {
+            $stmt = $conn->prepare("SELECT name FROM supervisors WHERE id = ? LIMIT 1");
+            $stmt->execute([$user_id]);
+            $tmp = $stmt->fetchColumn();
+            if ($tmp) $user_name = $tmp;
+        } elseif ($role === 'coordinator') {
+            $stmt = $conn->prepare("SELECT name FROM coordinators WHERE id = ? LIMIT 1");
+            $stmt->execute([$user_id]);
+            $tmp = $stmt->fetchColumn();
+            if ($tmp) $user_name = $tmp;
+        } elseif ($role === 'admin') {
+            $stmt = $conn->prepare("SELECT name FROM admins WHERE id = ? LIMIT 1");
+            $stmt->execute([$user_id]);
+            $tmp = $stmt->fetchColumn();
+            if ($tmp) $user_name = $tmp;
+        }
+    }
+} catch (Exception $e) {
+    // ignore lookup errors
+}
+
+// role label
+$roleLabel = ucfirst($role);
+
+// build role-specific navigation
+$navItems = [];
+if ($role === 'coordinator') {
+    $navItems = [
+        ['href' => relUrl('/coordinator_actions/dashboard_coordinator.php'), 'icon' => 'fas fa-home', 'label' => 'Dashboard'],
+        ['href' => relUrl('/coordinator_actions/review_reports.php'), 'icon' => 'fas fa-file-alt', 'label' => 'Review Reports'],
+        ['href' => relUrl('/coordinator_actions/student_progress.php'), 'icon' => 'fas fa-chart-line', 'label' => 'Student Progress'],
+        ['href' => relUrl('/overall_actions/messages.php'), 'icon' => 'fas fa-comments', 'label' => 'Messages'],
+    ];
+} elseif ($role === 'supervisor') {
+    $navItems = [
+        ['href' => relUrl('/supervisor_actions/dashboard_supervisor.php'), 'icon' => 'fas fa-home', 'label' => 'Dashboard'],
+        ['href' => relUrl('/supervisor_actions/review_hours.php'), 'icon' => 'fas fa-clock', 'label' => 'Review Hours'],
+        ['href' => relUrl('/overall_actions/messages.php'), 'icon' => 'fas fa-comments', 'label' => 'Messages'],
+    ];
+} else { // student or default
+    $navItems = [
+        ['href' => relUrl('/student_actions/dashboard.php'), 'icon' => 'fas fa-home', 'label' => 'Dashboard'],
+        ['href' => relUrl('/student_actions/log_hours.php'), 'icon' => 'fas fa-clock', 'label' => 'Log Hours'],
+        ['href' => relUrl('/student_actions/submit-reports.php'), 'icon' => 'fas fa-file-alt', 'label' => 'Submit Reports'],
+        ['href' => relUrl('/overall_actions/messages.php'), 'icon' => 'fas fa-comments', 'label' => 'Messages'],
+    ];
+}
+
+// current script to mark active nav
+$current = $_SERVER['SCRIPT_NAME'];
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -48,29 +118,23 @@ function relUrl($path) {
             </div>
             <nav class="p-4 flex flex-col min-h-[calc(100vh-5rem)]">
                 <div class="space-y-2 flex-1">
-                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/student_actions/dashboard.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
-                        <i class="fas fa-home"></i>
-                        <span class="font-medium">Dashboard</span>
-                    </a>
-                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/student_actions/log_hours.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
-                        <i class="fas fa-clock"></i>
-                        <span class="font-medium">Log Hours</span>
-                    </a>
-                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/student_actions/submit-reports.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
-                        <i class="fas fa-file-alt"></i>
-                        <span class="font-medium">Submit Reports</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
-                        <i class="fas fa-comments"></i>
-                        <span class="font-medium">Messages</span>
-                    </a>
+                    <?php foreach ($navItems as $item): 
+                        $isActive = (strpos($current, $item['href']) !== false) || ($current === $item['href']);
+                        $classes = 'flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600';
+                        if ($isActive) $classes .= ' bg-white text-blue-700 border-l-4 border-blue-500';
+                    ?>
+                        <a href="<?= $item['href'] ?>" class="<?= $classes ?>">
+                            <i class="<?= $item['icon'] ?>"></i>
+                            <span class="font-medium"><?= htmlspecialchars($item['label']) ?></span>
+                        </a>
+                    <?php endforeach; ?>
                 </div>
                 <div class="space-y-2 mt-auto">
-                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/overall_actions/settings.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= relUrl('/overall_actions/settings.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-cog"></i>
                         <span class="font-medium">Settings</span>
                     </a>
-                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/overall_actions/logout.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= relUrl('/overall_actions/logout.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-sign-out-alt"></i>
                         <span class="font-medium">Logout</span>
                     </a>
@@ -89,8 +153,8 @@ function relUrl($path) {
                             <i class="fas fa-user text-gray-500"></i>
                         </div>
                         <div>
-                            <p class="font-medium text-gray-800">Alex Johnson</p>
-                            <p class="text-sm text-gray-500">Intern</p>
+                            <p class="font-medium text-gray-800"><?= htmlspecialchars($user_name) ?></p>
+                            <p class="text-sm text-gray-500"><?= htmlspecialchars($roleLabel) ?></p>
                         </div>
                     </div>
                 </div>

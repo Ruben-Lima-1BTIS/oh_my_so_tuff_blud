@@ -1,6 +1,15 @@
 <?php
 session_start();
-require 'db.php';
+
+if (file_exists(__DIR__ . '/../dont_touch_kinda_stuff/db.php')) {
+    require_once __DIR__ . '/../dont_touch_kinda_stuff/db.php';
+} elseif (file_exists(__DIR__ . '/../db.php')) {
+    require_once __DIR__ . '/../db.php';
+} elseif (file_exists(__DIR__ . '/db.php')) {
+    require_once __DIR__ . '/db.php';
+} else {
+    die('Database connection file not found.');
+}
 
 // se nao tiver logado expulsa
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['table']) || !isset($_SESSION['role'])) {
@@ -16,11 +25,11 @@ $firstLogin = $_SESSION['first_login'] ?? 0;
 // se já mudou a password, redireciona para o dashboard correto
 if ($firstLogin == 0) {
     if ($role === 'student') {
-        header("Location: dashboard.php"); // fixed typo
+        header("Location: ../student_actions/dashboard.php"); // fixed typo
     } elseif ($role === 'coordinator') {
-        header("Location: dashboard_coordinator.php");
+        header("Location: ../coordinator_actions/dashboard_coordinator.php");
     } elseif ($role === 'supervisor') {
-        header("Location: dashboard_supervisor.php");
+        header("Location: ../supervisor_actions/dashboard_supervisor.php");
     }
     exit;
 }
@@ -49,11 +58,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // rediciona para o dashboard correto
         if ($role === 'student') {
-            header("Location: dashboard.php?changed=1");
+            header("Location: ../student_actions/dashboard.php?changed=1");
         } elseif ($role === 'coordinator') {
-            header("Location: dashboard_coordinator.php?changed=1");
+            header("Location: ../coordinator_actions/dashboard_coordinator.php?changed=1");
         } elseif ($role === 'supervisor') {
-            header("Location: dashboard_supervisor.php?changed=1");
+            header("Location: ../supervisor_actions/dashboard_supervisor.php?changed=1");
         }
         exit;
     }

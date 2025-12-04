@@ -90,7 +90,13 @@ $stmt = $conn->prepare("
 ");
 $stmt->execute([$class_id]);
 $weekly_hours = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+function relUrl($path) {
+    $base = dirname($_SERVER['SCRIPT_NAME']);
+    return $base . $path;
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -126,13 +132,13 @@ tailwind.config = {
             <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
                 <i class="fas fa-home"></i><span class="font-medium">Dashboard</span>
             </a>
-            <a href="review_reports.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+            <a href="<?= relUrl('/review_reports.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                 <i class="fas fa-file-alt"></i><span class="font-medium">Review Reports</span>
             </a>
-            <a href="student_progress.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+            <a href="<?= relUrl('/student_progress.php') ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                 <i class="fas fa-chart-line"></i><span class="font-medium">Student Progress</span>
             </a>
-            <a href="messages.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+            <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/overall_actions/messages.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                 <i class="fas fa-comments"></i><span class="font-medium">Messages</span>
             </a>
         </div>
